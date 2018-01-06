@@ -4,6 +4,7 @@ import glob
 import argparse
 import os
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument("im_dir", help='Dir with calib. images', type=str)
 args = parser.parse_args()
@@ -12,13 +13,18 @@ args = parser.parse_args()
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-objp = np.zeros((6*7,3), np.float32)
-objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
+
+
+chess_w = 9
+chess_h = 6
+objp = np.zeros((chess_w*chess_h,3), np.float32)
+objp[:,:2] = np.mgrid[0:chess_w,0:chess_h].T.reshape(-1,2)
 
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
+image = cv2.imread('checkerboard')
 images = glob.glob(os.path.join(args.im_dir,'checkerboard*.png'))
 
 if len(images) <= 0:
@@ -34,7 +40,7 @@ for fname in images:
 	#cv2.waitKey(500)
 
 	# Find the chess board corners
-	ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
+	ret, corners = cv2.findChessboardCorners(gray, (chess_w,chess_h),None)
 
 	# print (corners)
 	# print (ret)
@@ -50,11 +56,25 @@ for fname in images:
 		imgpoints.append(corners2)
 
 		# Draw and display the corners
-		img = cv2.drawChessboardCorners(img, (9,6), corners2,ret)
+		img = cv2.drawChessboardCorners(img, (chess_w,chess_h), corners2,ret)
 		cv2.imshow('img',img)
 		cv2.waitKey(500)
 
-		#ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objp, corners2, gray.shape[::-1],None,None)
+ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
 
+image = cv2.imread(os.path.join(args.im_dir, 'checkerboard8.png'))
+
+h,  w = img.shape[:2]
+newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),0,(w,h))
+
+
+dst = cv2.undistort(image, mtx, dist, None, newcameramtx)
+#x,y,w,h = roi
+#dst = dst[y:y+h, x:x+w]
+cv2.imwrite('calibresult.png',dst)
+
+cv2.imshow('undistorted',dst)
+cv2.waitKey(5000)
+# next steps
 
 cv2.destroyAllWindows()
