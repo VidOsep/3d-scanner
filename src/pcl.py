@@ -46,8 +46,6 @@ def GetLine(img,orig_img, curr_angle):
         else:
             peak = 0
             color = 0
-            #np.vstack((points,point))
-            #np.vstack((colors,color))
             pass
 
         M = make_axis_rotation_matrix([0,0,1], curr_angle)
@@ -57,7 +55,7 @@ def GetLine(img,orig_img, curr_angle):
         point = np.array([x,y,h-i])
         #color = np.array([orig_img[i,x]])
         points = np.vstack((points,M.dot(point)))
-        #   colors = np.vstack((colors,color))
+        #colors = np.vstack((colors,color))
 
         #points = M.dot(points) # np.transpose(points)
     return points,None
