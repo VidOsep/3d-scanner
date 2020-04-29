@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
+
 # Distribution / packaging
 .Python
 env/
@@ -103,3 +104,6 @@ ENV/
 # Other weird stuff
 .idea/*
 *.png
+src/bimg
+src/img
+src/*.ply
